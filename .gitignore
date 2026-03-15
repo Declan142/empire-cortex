@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build
+dist/
+build/
+*.tsbuildinfo
+
+# Logs (audit log is tracked, but not temp logs)
+*.log
+!.claude/artifacts/audit/log.jsonl
+
+# Secrets
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# NanoClaw container data
+container-data/

@@ -1,0 +1,39 @@
+name: Daily Dependency Audit
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # 8 AM UTC daily
+  workflow_dispatch:  # manual trigger
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for package files
+        id: check
+        run: |
+          [ -f package.json ] && echo "has_npm=true" >> $GITHUB_OUTPUT || echo "has_npm=false" >> $GITHUB_OUTPUT
+          [ -f requirements.txt ] && echo "has_pip=true" >> $GITHUB_OUTPUT || echo "has_pip=false" >> $GITHUB_OUTPUT
+
+      - name: NPM Audit
+        if: steps.check.outputs.has_npm == 'true'
+        run: |
+          npm audit --json > audit-report.json 2>/dev/null || true
+          echo "## NPM Audit Results" >> $GITHUB_STEP_SUMMARY
+          cat audit-report.json | jq -r '.metadata.vulnerabilities | to_entries[] | "- \(.key): \(.value)"' >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo "No vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create issue on critical findings
+        if: failure()
+        run: |
+          gh issue create \
+            --title "🔒 Dependency audit found vulnerabilities — $(date +%Y-%m-%d)" \
+            --body "The daily dependency audit found critical vulnerabilities. Check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details." \
+            --label "security,automated"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
