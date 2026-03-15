@@ -17,6 +17,9 @@ desktop.ini
 *.swp
 *.swo
 
+# Local Claude settings (machine-specific)
+.claude/settings.local.json
+
 # Build
 dist/
 build/
