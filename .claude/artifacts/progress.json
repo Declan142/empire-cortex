@@ -1,0 +1,24 @@
+{
+  "version": "empire-v3",
+  "created": "2026-03-15T00:00:00Z",
+  "last_compaction": null,
+  "compaction_count": 0,
+  "current_session": {
+    "goal": null,
+    "active_tasks": [],
+    "blocked_tasks": [],
+    "completed_tasks": []
+  },
+  "agents": {
+    "scout": { "last_active": null, "total_tasks": 0 },
+    "builder": { "last_active": null, "total_tasks": 0 },
+    "critic": { "last_active": null, "total_tasks": 0 },
+    "guardian": { "last_active": null, "total_tasks": 0 }
+  },
+  "token_budget": {
+    "opus_percent": 10,
+    "sonnet_percent": 70,
+    "haiku_percent": 20
+  },
+  "notes": "Fresh Empire install. No tasks run yet."
+}
