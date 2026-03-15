@@ -69,9 +69,9 @@ fi
 # ── Check 3: Langfuse HTTP health ─────────────────────────────────────────────
 hdr "Langfuse Health (http://localhost:3000)"
 LF_RESP=$(curl -s --max-time 5 http://localhost:3000/api/public/health 2>/dev/null || echo "")
-if echo "$LF_RESP" | grep -qi '"status":"ok"' 2>/dev/null || \
-   echo "$LF_RESP" | grep -qi '"healthy"' 2>/dev/null || \
-   echo "$LF_RESP" | grep -qi 'ok' 2>/dev/null; then
+if echo "$LF_RESP" | grep -qi '"status":"OK"' 2>/dev/null || \
+   echo "$LF_RESP" | grep -qi '"status":"ok"' 2>/dev/null || \
+   echo "$LF_RESP" | grep -qi '"healthy":true' 2>/dev/null; then
     ok "Langfuse API healthy — response: ${LF_RESP:0:80}"
 elif [[ -n "$LF_RESP" ]]; then
     warn "Langfuse responded but status unclear: ${LF_RESP:0:80}"
@@ -82,8 +82,8 @@ fi
 # ── Check 4: Telegram bot last seen ───────────────────────────────────────────
 hdr "Telegram Bot (@aditya7274nano_bot)"
 TG_LINE=$(journalctl -u nanoclaw -n 100 --no-pager 2>/dev/null \
-    | grep -i "telegram bot connected\|telegram.*start\|polling\|bot.*ready" \
-    | tail -1 || echo "")
+    | { grep -i "telegram bot connected\|telegram.*start\|polling\|bot.*ready" || true; } \
+    | tail -1)
 if [[ -n "$TG_LINE" ]]; then
     ok "Last Telegram event: ${TG_LINE:0:120}"
 else
