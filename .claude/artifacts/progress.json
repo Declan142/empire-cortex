@@ -1,6 +1,6 @@
 {
   "session": "2026-03-16",
-  "status": "nanoclaw_operational",
+  "status": "langfuse_operational",
   "completed": [
     "VS Build Tools C++ workload installed (better-sqlite3 compiles)",
     "Docker Desktop installed + WSL Ubuntu integration enabled",
@@ -8,23 +8,35 @@
     "Telegram channel merged from qwibitai/nanoclaw-telegram",
     "OAuth token configured (.env + data/env/env)",
     "nanoclaw-agent:latest Docker image built (693MB, node:22-slim + chromium + Claude Code)",
-    "NanoClaw running in tmux session 'nanoclaw' in WSL",
+    "NanoClaw systemd service created (/etc/systemd/system/nanoclaw.service) — auto-starts on WSL boot",
     "Telegram bot @aditya7274nano_bot live and responding",
-    "End-to-end test PASSED: message in → container spawned → Claude reply → Telegram reply sent"
+    "End-to-end test PASSED: message in → container spawned → Claude reply → Telegram reply sent",
+    "Langfuse v3 self-hosted running via Docker Compose at ~/langfuse",
+    "Langfuse UI accessible at http://localhost:3000",
+    "Langfuse org: Empire, project: NanoClaw, user: wickedrita@gmail.com / Empire2026!"
   ],
   "pending": [
-    "WhatsApp channel integration",
-    "Langfuse observability setup (Docker Compose)",
+    "Wire Langfuse API keys into NanoClaw .env (LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY)",
     "First real Empire agent task (Scout/Builder/Critic pipeline)",
-    "Make NanoClaw auto-start on WSL boot (systemd or .profile)",
+    "WhatsApp channel integration",
+    "Make Langfuse auto-start on WSL boot (Docker Desktop auto-start already handles this)",
     "OpenClaw web UI (optional, low priority)"
   ],
   "nanoclaw": {
-    "process": "tmux session 'nanoclaw' in WSL Ubuntu",
+    "process": "systemd service 'nanoclaw' — auto-starts on WSL boot",
     "bot": "@aditya7274nano_bot",
     "trigger": "@Andy",
     "image": "nanoclaw-agent:latest",
-    "log": "/tmp/nanoclaw.log",
-    "restart_cmd": "wsl -d Ubuntu -u aditya -- bash -c \"tmux kill-session -t nanoclaw 2>/dev/null; tmux new-session -d -s nanoclaw 'export NVM_DIR=/home/aditya/.nvm && . /home/aditya/.nvm/nvm.sh && cd ~/nanoclaw && node dist/index.js 2>&1 | tee /tmp/nanoclaw.log'\""
+    "logs_cmd": "wsl -d Ubuntu -u root -- journalctl -u nanoclaw -f",
+    "restart_cmd": "wsl -d Ubuntu -u root -- systemctl restart nanoclaw"
+  },
+  "langfuse": {
+    "url": "http://localhost:3000",
+    "email": "wickedrita@gmail.com",
+    "password": "Empire2026!",
+    "org": "Empire",
+    "project": "NanoClaw",
+    "compose_dir": "~/langfuse",
+    "start_cmd": "wsl -d Ubuntu -u aditya -- bash -c 'cd ~/langfuse && docker compose --env-file .env up -d'"
   }
 }
