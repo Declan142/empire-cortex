@@ -1,24 +1,30 @@
 {
-  "version": "empire-v3",
-  "created": "2026-03-15T00:00:00Z",
-  "last_compaction": null,
-  "compaction_count": 0,
-  "current_session": {
-    "goal": null,
-    "active_tasks": [],
-    "blocked_tasks": [],
-    "completed_tasks": []
-  },
-  "agents": {
-    "scout": { "last_active": null, "total_tasks": 0 },
-    "builder": { "last_active": null, "total_tasks": 0 },
-    "critic": { "last_active": null, "total_tasks": 0 },
-    "guardian": { "last_active": null, "total_tasks": 0 }
-  },
-  "token_budget": {
-    "opus_percent": 10,
-    "sonnet_percent": 70,
-    "haiku_percent": 20
-  },
-  "notes": "Fresh Empire install. No tasks run yet."
+  "session": "2026-03-16",
+  "status": "nanoclaw_operational",
+  "completed": [
+    "VS Build Tools C++ workload installed (better-sqlite3 compiles)",
+    "Docker Desktop installed + WSL Ubuntu integration enabled",
+    "NanoClaw moved to WSL (~aditya/nanoclaw)",
+    "Telegram channel merged from qwibitai/nanoclaw-telegram",
+    "OAuth token configured (.env + data/env/env)",
+    "nanoclaw-agent:latest Docker image built (693MB, node:22-slim + chromium + Claude Code)",
+    "NanoClaw running in tmux session 'nanoclaw' in WSL",
+    "Telegram bot @aditya7274nano_bot live and responding",
+    "End-to-end test PASSED: message in → container spawned → Claude reply → Telegram reply sent"
+  ],
+  "pending": [
+    "WhatsApp channel integration",
+    "Langfuse observability setup (Docker Compose)",
+    "First real Empire agent task (Scout/Builder/Critic pipeline)",
+    "Make NanoClaw auto-start on WSL boot (systemd or .profile)",
+    "OpenClaw web UI (optional, low priority)"
+  ],
+  "nanoclaw": {
+    "process": "tmux session 'nanoclaw' in WSL Ubuntu",
+    "bot": "@aditya7274nano_bot",
+    "trigger": "@Andy",
+    "image": "nanoclaw-agent:latest",
+    "log": "/tmp/nanoclaw.log",
+    "restart_cmd": "wsl -d Ubuntu -u aditya -- bash -c \"tmux kill-session -t nanoclaw 2>/dev/null; tmux new-session -d -s nanoclaw 'export NVM_DIR=/home/aditya/.nvm && . /home/aditya/.nvm/nvm.sh && cd ~/nanoclaw && node dist/index.js 2>&1 | tee /tmp/nanoclaw.log'\""
+  }
 }
