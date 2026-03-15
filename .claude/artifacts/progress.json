@@ -1,6 +1,7 @@
 {
   "session": "2026-03-16",
-  "status": "langfuse_operational",
+  "last_saved": "2026-03-16T21:45:00Z",
+  "status": "session_paused",
   "completed": [
     "VS Build Tools C++ workload installed (better-sqlite3 compiles)",
     "Docker Desktop installed + WSL Ubuntu integration enabled",
@@ -11,17 +12,20 @@
     "NanoClaw systemd service created (/etc/systemd/system/nanoclaw.service) — auto-starts on WSL boot",
     "Telegram bot @aditya7274nano_bot live and responding",
     "End-to-end test PASSED: message in → container spawned → Claude reply → Telegram reply sent",
-    "Langfuse v3 self-hosted running via Docker Compose at ~/langfuse",
-    "Langfuse UI accessible at http://localhost:3000",
-    "Langfuse org: Empire, project: NanoClaw, user: wickedrita@gmail.com / Empire2026!"
+    "Langfuse v3 self-hosted running via Docker Compose at ~/langfuse (parked — not actively useful yet)",
+    "Langfuse API keys generated and wired into NanoClaw .env + data/env/env",
+    "Task #001: Empire health dashboard — full Scout→Builder→Critic pipeline completed",
+    "src/health.sh + src/health.ps1 — all 6 checks green",
+    ".gitattributes added to enforce LF on shell scripts"
   ],
   "pending": [
-    "Wire Langfuse API keys into NanoClaw .env (LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY)",
-    "First real Empire agent task (Scout/Builder/Critic pipeline)",
+    "BUILD: Empire web dashboard — animated UI, real-time service status, drag-and-drop task board (React/Next.js)",
     "WhatsApp channel integration",
-    "Make Langfuse auto-start on WSL boot (Docker Desktop auto-start already handles this)",
+    "Langfuse SDK instrumentation in NanoClaw source (currently shows 0 traces — env vars set but no SDK calls)",
+    "Scheduled agents: dep-auditor, issue-triager on cron",
     "OpenClaw web UI (optional, low priority)"
   ],
+  "next_session_start": "Read this file first. Top priority: Build the Empire web dashboard (animated status + task board). User was frustrated that Langfuse showed all zeros — they wanted a visual animated dashboard with drag-and-drop task management, not LLM observability. Build that next.",
   "nanoclaw": {
     "process": "systemd service 'nanoclaw' — auto-starts on WSL boot",
     "bot": "@aditya7274nano_bot",
@@ -37,6 +41,13 @@
     "org": "Empire",
     "project": "NanoClaw",
     "compose_dir": "~/langfuse",
-    "start_cmd": "wsl -d Ubuntu -u aditya -- bash -c 'cd ~/langfuse && docker compose --env-file .env up -d'"
+    "start_cmd": "wsl -d Ubuntu -u aditya -- bash -c 'cd ~/langfuse && docker compose --env-file .env up -d'",
+    "note": "Parked. Shows 0 traces because NanoClaw has no Langfuse SDK calls. Needs instrumentation work before it's useful."
+  },
+  "health_dashboard": {
+    "script": "D:/~Claude/src/health.sh",
+    "launcher": "D:/~Claude/src/health.ps1",
+    "run_cmd": ".\\health.ps1 (from D:\\~Claude\\src\\)",
+    "checks": ["NanoClaw systemd", "Docker containers", "Langfuse HTTP", "Telegram bot", "NanoClaw logs", "Git status"]
   }
 }
