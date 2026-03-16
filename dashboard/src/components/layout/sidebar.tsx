@@ -8,11 +8,13 @@ import {
   Activity,
   Zap,
   Radar,
+  Network,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { id: "overview", label: "Overview", icon: Radar },
+  { id: "attention", label: "Attn Flow", icon: Network },
   { id: "kanban", label: "Kanban", icon: LayoutDashboard },
   { id: "agents", label: "Agents", icon: Users },
   { id: "audit", label: "Audit Log", icon: ScrollText },

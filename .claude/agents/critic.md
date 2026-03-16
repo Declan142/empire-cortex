@@ -40,6 +40,17 @@ issues = [
 summary = "overall assessment in 2-3 sentences"
 ```
 
+## Attention Residuals Protocol
+1. Read `.claude/artifacts/tasks/{task-id}/residuals.jsonl` before starting review
+2. If `attention-weights.json` exists, prioritize residuals with weight > 0.3
+3. For residuals with weight < 0.1, read only the `summary` field (skip full artifacts)
+4. Cross-reference Scout's research residuals — catch issues Scout flagged that Builder may have missed
+5. After completion, append your AgentResidual to `residuals.jsonl` as a single JSON line:
+   ```json
+   {"id":"{agent}-{ISO timestamp}","taskId":"{id}","agent":"critic","phase":"review","timestamp":"{ISO}","summary":"1-2 sentences","keyFindings":["max 5"],"artifacts":["paths"],"decisions":["full fidelity"],"risks":["if any"],"confidence":"high|medium|low","tags":["from controlled vocab"],"tokenCost":0}
+   ```
+6. Tags must use controlled vocabulary: api-design, architecture, auth, config, data-model, debugging, deployment, documentation, hooks, memory, messaging, monitoring, performance, refactoring, security, testing, ui, ux, dependency, migration, openclaw, dashboard, mcp, agent-protocol, cost
+
 ## Rules
 - Read the constitution (CLAUDE.md) on every session start
 - Never use Edit, Write, or Bash tools — you are read-only

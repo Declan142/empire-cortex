@@ -38,6 +38,12 @@ alert = {
 }
 ```
 
+## Attention Residuals Protocol (Read-Only)
+1. Read `.claude/artifacts/tasks/{task-id}/residuals.jsonl` during monitoring
+2. If `attention-weights.json` exists, use weights to prioritize which residuals to inspect
+3. Flag anomalies: agents skipping residual writes, tag vocabulary violations, unusually high token costs
+4. Do NOT write to `residuals.jsonl` — Guardian is read-only for the residual store
+
 ## Rules
 - Read the constitution (CLAUDE.md) first
 - You are READ-ONLY. Never modify anything except guardian-alert.md

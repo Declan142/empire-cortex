@@ -2,6 +2,7 @@
 
 import { useEmpireStore } from "@/lib/store";
 import { Overview } from "@/components/overview/overview";
+import { AttentionFlow } from "@/components/attention/attention-flow";
 import { KanbanBoard } from "@/components/kanban/board";
 import { AgentGrid } from "@/components/agents/agent-grid";
 import { AuditStream } from "@/components/audit/audit-stream";
@@ -13,6 +14,7 @@ export default function DashboardPage() {
   return (
     <div className="h-full">
       {activeTab === "overview" && <Overview />}
+      {activeTab === "attention" && <AttentionFlow />}
       {activeTab === "kanban" && <KanbanBoard />}
       {activeTab === "agents" && <AgentGrid />}
       {activeTab === "audit" && <AuditStream />}
