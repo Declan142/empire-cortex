@@ -56,3 +56,44 @@ export const MODEL_COLORS: Record<AgentModel, string> = {
   sonnet: "#06b6d4",  // cyan
   haiku: "#10b981",   // emerald
 };
+
+// ── Agent Attention Residuals (AgentAttnRes) ──────────────────────────
+
+export type AgentPhase = "research" | "implementation" | "review";
+
+export const PHASE_COLORS: Record<AgentPhase, string> = {
+  research: "#f59e0b",       // amber
+  implementation: "#06b6d4", // cyan
+  review: "#8b5cf6",         // violet
+};
+
+export interface AgentResidual {
+  id: string;                    // "{agent}-{timestamp}"
+  taskId: string;
+  agent: string;                 // "scout" | "lead" | "builder" | "critic" | "guardian"
+  phase: AgentPhase;
+  timestamp: string;
+  summary: string;               // 1-2 sentences (max 100 tokens)
+  keyFindings: string[];         // max 5 bullet points
+  artifacts: string[];           // file paths produced
+  decisions: string[];           // full fidelity (ACON principle)
+  risks: string[];
+  confidence: "high" | "medium" | "low";
+  tags: string[];                // controlled vocabulary
+  tokenCost: number;
+}
+
+export interface AttentionWeight {
+  residualId: string;
+  agent: string;
+  phase: string;
+  weight: number;                // 0.0-1.0, softmax-normalized
+  reason: string;                // human-readable explanation
+}
+
+export interface AttentionSnapshot {
+  taskId: string;
+  computedAt: string;
+  currentAgent: string;
+  weights: AttentionWeight[];
+}
