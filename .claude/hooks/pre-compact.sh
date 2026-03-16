@@ -36,4 +36,10 @@ fi
 
 echo "$UPDATED" > "$PROGRESS_FILE"
 
+# ── AttnRes Bridge: Sync residuals to OpenClaw ──
+BRIDGE_SCRIPT="$ROOT/.claude/hooks/sync-residuals.sh"
+if [ -f "$BRIDGE_SCRIPT" ]; then
+  bash "$BRIDGE_SCRIPT" &
+fi
+
 exit 0
