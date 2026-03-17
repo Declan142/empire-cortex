@@ -2,9 +2,26 @@
   "permissions": {
     "allow": [
       "Read",
+      "Write",
+      "Edit",
       "Grep",
       "Glob",
-      "Agent"
+      "Agent",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(tsc *)",
+      "Bash(cd *)",
+      "Bash(ls *)",
+      "Bash(mkdir *)",
+      "Bash(cat *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(pwd)",
+      "TodoWrite",
+      "NotebookEdit"
     ],
     "deny": []
   },
