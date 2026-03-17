@@ -2,6 +2,9 @@
 # PostToolUse hook — audit logging
 # Appends every tool use to the immutable audit log
 
+# Ensure jq is on PATH (Windows Git Bash fix)
+export PATH="$HOME/bin:$PATH"
+
 TOOL_NAME="$CLAUDE_TOOL_NAME"
 TOOL_INPUT="$CLAUDE_TOOL_INPUT"
 SESSION_ID="$CLAUDE_SESSION_ID"

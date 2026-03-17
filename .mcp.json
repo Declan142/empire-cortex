@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "openclaw": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "openclaw-mcp-server"],
+      "env": {
+        "OPENCLAW_URL": "http://127.0.0.1:18789"
+      }
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "mem0": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "mem0-mcp"],
+      "env": {
+        "MEM0_API_KEY": "m0-bRB6BMfdACOAZykbUyJ8fSMnoLIX93kbFXwF1Sc7"
+      }
+    }
+  }
+}

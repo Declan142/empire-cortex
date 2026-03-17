@@ -3,13 +3,17 @@
 # Called by pre-compact hook to push top residuals to OpenClaw's memory
 # This writes a residuals-bridge.md file that OpenClaw's empire agent reads
 
-ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo ".")
-TASKS_DIR="$ROOT/.claude/artifacts/tasks"
+# Ensure jq is on PATH (Windows Git Bash fix)
+export PATH="$HOME/bin:$PATH"
+
+TASKS_DIR="D:/~Claude/.claude/artifacts/tasks"
 BRIDGE_FILE="$HOME/.openclaw/memory/residuals-bridge.md"
+BRIDGE_FILE_WORKSPACE="$HOME/.openclaw/workspace/memory/residuals-bridge.md"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# Ensure target directory exists
+# Ensure target directories exist
 mkdir -p "$(dirname "$BRIDGE_FILE")"
+mkdir -p "$(dirname "$BRIDGE_FILE_WORKSPACE")"
 
 # Collect all residuals from all tasks
 ALL_RESIDUALS=""
@@ -62,8 +66,11 @@ fi
 
 } > "$BRIDGE_FILE"
 
+# Also copy to workspace/memory where OpenClaw actually reads
+cp "$BRIDGE_FILE" "$BRIDGE_FILE_WORKSPACE" 2>/dev/null
+
 # Log the sync event
-LOG_DIR="$ROOT/.claude/artifacts/audit"
+LOG_DIR="D:/~Claude/.claude/artifacts/audit"
 mkdir -p "$LOG_DIR"
 COUNT=$(echo "$TOP" | jq 'length' 2>/dev/null)
 echo "{\"ts\":\"$TIMESTAMP\",\"tool\":\"attnres-bridge\",\"input_preview\":\"synced $COUNT residuals to OpenClaw\"}" >> "$LOG_DIR/log.jsonl"
