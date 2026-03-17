@@ -7,7 +7,8 @@ import { DEMO_RESIDUALS, getDemoAttentionWeights } from "@/lib/attn-residuals";
 import { MODEL_COLORS, PHASE_COLORS } from "@/lib/types";
 import type { AgentResidual, AgentPhase, AttentionWeight } from "@/lib/types";
 import { ResidualDetail } from "./residual-detail";
-import { Network, Zap } from "lucide-react";
+import { Network, Zap, ArrowLeftRight } from "lucide-react";
+import { MessageFlow } from "./message-flow";
 
 // ── Layout Constants ──────────────────────────────────────────────────
 
@@ -27,7 +28,14 @@ const AGENT_MODEL: Record<string, keyof typeof MODEL_COLORS> = {
   critic: "sonnet",
   lead: "opus",
   guardian: "haiku",
+  empire: "sonnet",
 };
+
+// Source badge colors
+const SOURCE_COLORS = {
+  "claude-code": "#06b6d4",   // cyan
+  openclaw: "#f97316",         // orange
+} as const;
 
 // ── Bezier Edge ──────────────────────────────────────────────────────
 
@@ -94,6 +102,8 @@ function ResidualNode({
 }) {
   const model = AGENT_MODEL[residual.agent] ?? "sonnet";
   const color = MODEL_COLORS[model];
+  const isOC = residual.agent === "empire";
+  const sourceColor = isOC ? SOURCE_COLORS.openclaw : SOURCE_COLORS["claude-code"];
 
   return (
     <motion.g
@@ -126,6 +136,16 @@ function ResidualNode({
         />
       )}
 
+      {/* Source ring (outer) — cyan for CC, orange for OC */}
+      <circle
+        cx={x} cy={y} r={NODE_RADIUS + 2}
+        fill="none"
+        stroke={sourceColor}
+        strokeWidth={1.5}
+        strokeOpacity={0.5}
+        strokeDasharray={isOC ? "3 2" : "none"}
+      />
+
       {/* Glow circle */}
       <circle
         cx={x} cy={y} r={NODE_RADIUS}
@@ -155,6 +175,17 @@ function ResidualNode({
         opacity={0.7}
       >
         {residual.agent}
+      </text>
+
+      {/* Source label */}
+      <text
+        x={x} y={y + NODE_RADIUS + 14}
+        textAnchor="middle"
+        fill={sourceColor}
+        fontSize={7} fontFamily="monospace"
+        opacity={0.6}
+      >
+        {isOC ? "OPENCLAW" : "CC"}
       </text>
 
       {/* Confidence dot */}
@@ -236,6 +267,7 @@ function FlowParticles() {
 // ── Main Component ───────────────────────────────────────────────────
 
 export function AttentionFlow() {
+  const [view, setView] = useState<"graph" | "flow">("graph");
   const {
     residuals: storeResiduals,
     setResiduals,
@@ -340,121 +372,152 @@ export function AttentionFlow() {
         <div>
           <h2 className="text-lg font-bold font-mono text-violet-400">ATTENTION FLOW</h2>
           <p className="text-xs text-slate-500 font-mono">
-            Agent Attention Residuals — Task {residuals[0]?.taskId ?? "N/A"}
+            {view === "graph" ? `Agent Attention Residuals — Task ${residuals[0]?.taskId ?? "N/A"}` : "Message Flow Architecture — CC ↔ OC"}
           </p>
         </div>
-        <div className="ml-auto flex items-center gap-4">
-          {/* Legend */}
-          {(["opus", "sonnet", "haiku"] as const).map((model) => (
-            <div key={model} className="flex items-center gap-1.5">
-              <div
-                className="w-2.5 h-2.5 rounded-full"
-                style={{ background: MODEL_COLORS[model] }}
-              />
-              <span className="text-[10px] font-mono text-slate-500 capitalize">{model}</span>
+        {/* View toggle */}
+        <button
+          onClick={() => setView(view === "graph" ? "flow" : "graph")}
+          className="ml-4 flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass border border-white/[0.08] hover:border-white/[0.15] transition-colors text-slate-400 hover:text-slate-200"
+        >
+          <ArrowLeftRight className="w-3.5 h-3.5" />
+          <span className="text-[10px] font-mono">{view === "graph" ? "MSG FLOW" : "ATTN GRAPH"}</span>
+        </button>
+        <div className="ml-auto flex items-center gap-6">
+          {/* Model legend */}
+          <div className="flex items-center gap-3">
+            {(["opus", "sonnet", "haiku"] as const).map((model) => (
+              <div key={model} className="flex items-center gap-1.5">
+                <div
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ background: MODEL_COLORS[model] }}
+                />
+                <span className="text-[10px] font-mono text-slate-500 capitalize">{model}</span>
+              </div>
+            ))}
+          </div>
+          {/* Source legend */}
+          <div className="flex items-center gap-3 border-l border-white/[0.08] pl-3">
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ background: SOURCE_COLORS["claude-code"] }} />
+              <span className="text-[10px] font-mono text-slate-500">Claude Code</span>
             </div>
-          ))}
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full border border-dashed" style={{ borderColor: SOURCE_COLORS.openclaw, background: `${SOURCE_COLORS.openclaw}30` }} />
+              <span className="text-[10px] font-mono text-slate-500">OpenClaw</span>
+            </div>
+          </div>
         </div>
       </motion.div>
 
-      {/* Stats bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="flex gap-4 mb-4 relative z-10"
-      >
-        {[
-          { label: "Residuals", value: residuals.length, color: "#06b6d4" },
-          { label: "Connections", value: edges.length, color: "#8b5cf6" },
-          { label: "Phases", value: 3, color: "#f59e0b" },
-          { label: "Avg Weight", value: `${(weights.reduce((s, w) => s + w.weight, 0) / Math.max(weights.length, 1) * 100).toFixed(1)}%`, color: "#10b981" },
-        ].map((stat) => (
-          <div key={stat.label} className="glass rounded-lg px-3 py-2 flex items-center gap-2">
-            <Zap className="w-3 h-3" style={{ color: stat.color }} />
-            <span className="text-[10px] text-slate-500 font-mono uppercase">{stat.label}</span>
-            <span className="text-sm font-mono font-bold" style={{ color: stat.color }}>
-              {stat.value}
-            </span>
-          </div>
-        ))}
-      </motion.div>
-
-      {/* SVG Canvas */}
-      <div className="flex-1 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-          className="glass rounded-xl p-4 h-full"
-        >
-          <svg
-            viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`}
-            className="w-full h-full"
-            style={{ maxHeight: "calc(100vh - 280px)" }}
+      {view === "flow" ? (
+        /* Message Flow View */
+        <div className="flex-1 relative z-10 overflow-y-auto glass rounded-xl p-6">
+          <MessageFlow />
+        </div>
+      ) : (
+        <>
+          {/* Stats bar */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex gap-4 mb-4 relative z-10"
           >
-            <defs>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                <feMerge>
-                  <feMergeNode in="coloredBlur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* Phase groups */}
-            {(Object.keys(PHASE_CONFIG) as AgentPhase[]).map((phase) => (
-              <PhaseGroup
-                key={phase}
-                phase={phase}
-                y={PHASE_CONFIG[phase].y}
-                width={CANVAS_WIDTH}
-              />
+            {[
+              { label: "Residuals", value: residuals.length, color: "#06b6d4" },
+              { label: "CC Agents", value: residuals.filter((r) => r.agent !== "empire").length, color: "#06b6d4" },
+              { label: "OC Agents", value: residuals.filter((r) => r.agent === "empire").length, color: "#f97316" },
+              { label: "Connections", value: edges.length, color: "#8b5cf6" },
+              { label: "Avg Weight", value: `${(weights.reduce((s, w) => s + w.weight, 0) / Math.max(weights.length, 1) * 100).toFixed(1)}%`, color: "#10b981" },
+            ].map((stat) => (
+              <div key={stat.label} className="glass rounded-lg px-3 py-2 flex items-center gap-2">
+                <Zap className="w-3 h-3" style={{ color: stat.color }} />
+                <span className="text-[10px] text-slate-500 font-mono uppercase">{stat.label}</span>
+                <span className="text-sm font-mono font-bold" style={{ color: stat.color }}>
+                  {stat.value}
+                </span>
+              </div>
             ))}
+          </motion.div>
 
-            {/* Edges */}
-            {edges.map((edge, i) => (
-              <AttentionEdge
-                key={edge.key}
-                x1={edge.x1} y1={edge.y1}
-                x2={edge.x2} y2={edge.y2}
-                weight={edge.weight}
-                delay={0.5 + i * 0.1}
-                color={edge.color}
-              />
-            ))}
+          {/* SVG Canvas */}
+          <div className="flex-1 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="glass rounded-xl p-4 h-full"
+            >
+              <svg
+                viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`}
+                className="w-full h-full"
+                style={{ maxHeight: "calc(100vh - 280px)" }}
+              >
+                <defs>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                    <feMerge>
+                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
 
-            {/* Nodes */}
-            {residuals.map((r, i) => {
-              const pos = nodePositions[r.id];
-              if (!pos) return null;
-              return (
-                <ResidualNode
-                  key={r.id}
-                  residual={r}
-                  x={pos.x} y={pos.y}
-                  isSelected={selectedResidual === r.id}
-                  isActive={r.id === activeResidualId}
-                  onClick={() => setSelectedResidual(selectedResidual === r.id ? null : r.id)}
-                  delay={0.3 + i * 0.1}
+                {/* Phase groups */}
+                {(Object.keys(PHASE_CONFIG) as AgentPhase[]).map((phase) => (
+                  <PhaseGroup
+                    key={phase}
+                    phase={phase}
+                    y={PHASE_CONFIG[phase].y}
+                    width={CANVAS_WIDTH}
+                  />
+                ))}
+
+                {/* Edges */}
+                {edges.map((edge, i) => (
+                  <AttentionEdge
+                    key={edge.key}
+                    x1={edge.x1} y1={edge.y1}
+                    x2={edge.x2} y2={edge.y2}
+                    weight={edge.weight}
+                    delay={0.5 + i * 0.1}
+                    color={edge.color}
+                  />
+                ))}
+
+                {/* Nodes */}
+                {residuals.map((r, i) => {
+                  const pos = nodePositions[r.id];
+                  if (!pos) return null;
+                  return (
+                    <ResidualNode
+                      key={r.id}
+                      residual={r}
+                      x={pos.x} y={pos.y}
+                      isSelected={selectedResidual === r.id}
+                      isActive={r.id === activeResidualId}
+                      onClick={() => setSelectedResidual(selectedResidual === r.id ? null : r.id)}
+                      delay={0.3 + i * 0.1}
+                    />
+                  );
+                })}
+              </svg>
+            </motion.div>
+
+            {/* Detail Panel */}
+            <AnimatePresence>
+              {selectedRes && (
+                <ResidualDetail
+                  residual={selectedRes}
+                  incomingWeights={selectedWeights}
+                  onClose={() => setSelectedResidual(null)}
                 />
-              );
-            })}
-          </svg>
-        </motion.div>
-
-        {/* Detail Panel */}
-        <AnimatePresence>
-          {selectedRes && (
-            <ResidualDetail
-              residual={selectedRes}
-              incomingWeights={selectedWeights}
-              onClose={() => setSelectedResidual(null)}
-            />
-          )}
-        </AnimatePresence>
-      </div>
+              )}
+            </AnimatePresence>
+          </div>
+        </>
+      )}
     </div>
   );
 }

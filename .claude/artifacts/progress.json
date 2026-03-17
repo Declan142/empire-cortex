@@ -1,0 +1,47 @@
+{
+  "last_compaction": "2026-03-17T00:23:46Z",
+  "compaction_count": 4,
+  "attn_residuals": {
+    "top_residuals": [
+      {
+        "taskId": "004",
+        "agent": "builder",
+        "summary": "Built CC↔OC bridge: sync-residuals.sh hook, residual-bridge.ts parser, message-flow.tsx dual-path viz, OpenClaw SOUL.md + config.",
+        "tags": [
+          "architecture",
+          "agent-protocol",
+          "openclaw",
+          "mcp",
+          "hooks"
+        ],
+        "confidence": "high",
+        "timestamp": "2026-03-17T14:00:00Z"
+      },
+      {
+        "taskId": "004",
+        "agent": "builder",
+        "summary": "Implemented types, computation module, agent protocols, dashboard Attention Flow tab with animated SVG.",
+        "tags": [
+          "ui",
+          "architecture",
+          "agent-protocol",
+          "dashboard"
+        ],
+        "confidence": "high",
+        "timestamp": "2026-03-17T12:00:00Z"
+      },
+      {
+        "taskId": "004",
+        "agent": "scout",
+        "summary": "Kimi AttnRes replaces fixed residuals with softmax depth-attention. Block variant uses N=8 blocks for <2% overhead.",
+        "tags": [
+          "architecture",
+          "agent-protocol",
+          "performance"
+        ],
+        "confidence": "high",
+        "timestamp": "2026-03-17T10:00:00Z"
+      }
+    ]
+  }
+}

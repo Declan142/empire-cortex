@@ -32,17 +32,19 @@ export const AGENT_PHASE: Record<string, AgentPhase> = {
   builder: "implementation",
   critic: "review",
   guardian: "review",
+  empire: "research",   // OpenClaw gateway agent
 };
 
 // ── Role Affinity Matrix (= "zero-init" pseudo-query weights) ─────────
 // How much agent X typically benefits from agent Y's output.
 
 export const ROLE_AFFINITY: Record<string, Record<string, number>> = {
-  scout:    { scout: 0.1, lead: 0.3, builder: 0.2, critic: 0.4, guardian: 0.1 },
-  lead:     { scout: 0.9, lead: 0.1, builder: 0.3, critic: 0.5, guardian: 0.2 },
-  builder:  { scout: 0.7, lead: 0.9, builder: 0.2, critic: 0.6, guardian: 0.1 },
-  critic:   { scout: 0.5, lead: 0.4, builder: 0.9, critic: 0.1, guardian: 0.3 },
-  guardian: { scout: 0.3, lead: 0.5, builder: 0.6, critic: 0.4, guardian: 0.1 },
+  scout:    { scout: 0.1, lead: 0.3, builder: 0.2, critic: 0.4, guardian: 0.1, empire: 0.6 },
+  lead:     { scout: 0.9, lead: 0.1, builder: 0.3, critic: 0.5, guardian: 0.2, empire: 0.7 },
+  builder:  { scout: 0.7, lead: 0.9, builder: 0.2, critic: 0.6, guardian: 0.1, empire: 0.5 },
+  critic:   { scout: 0.5, lead: 0.4, builder: 0.9, critic: 0.1, guardian: 0.3, empire: 0.3 },
+  guardian: { scout: 0.3, lead: 0.5, builder: 0.6, critic: 0.4, guardian: 0.1, empire: 0.4 },
+  empire:   { scout: 0.8, lead: 0.6, builder: 0.5, critic: 0.3, guardian: 0.2, empire: 0.1 },
 };
 
 // ── Softmax ───────────────────────────────────────────────────────────
@@ -274,6 +276,45 @@ export const DEMO_RESIDUALS: AgentResidual[] = [
     confidence: "high",
     tags: ["testing", "performance", "ui"],
     tokenCost: 5000,
+  },
+  // ── OpenClaw residuals (bridged from empire agent) ──
+  {
+    id: "empire-2026-03-17T09:30:00Z",
+    taskId: "005",
+    agent: "empire",
+    phase: "research",
+    timestamp: "2026-03-17T09:30:00Z",
+    summary: "User asked about AttnRes via OpenClaw. Searched memory, found Kimi paper context. Provided overview and suggested Claude Code implementation.",
+    keyFindings: [
+      "Kimi's AttnRes paper published March 2026",
+      "Block variant recommended for agent systems (few layers)",
+      "User wants both CC and OC to share attention context",
+    ],
+    artifacts: [],
+    decisions: ["Route implementation to Claude Code agents via bridge"],
+    risks: [],
+    confidence: "high",
+    tags: ["architecture", "agent-protocol", "openclaw", "memory"],
+    tokenCost: 3000,
+  },
+  {
+    id: "empire-2026-03-17T14:00:00Z",
+    taskId: "005",
+    agent: "empire",
+    phase: "research",
+    timestamp: "2026-03-17T14:00:00Z",
+    summary: "Read residuals-bridge.md from Claude Code sync. Builder completed all 4 phases. Updated OpenClaw memory with implementation decisions for future queries.",
+    keyFindings: [
+      "Bridge sync working: 5 CC residuals received",
+      "Softmax attention with Jaccard+recency confirmed as approach",
+      "Dashboard Attn Flow tab operational",
+    ],
+    artifacts: ["~/.openclaw/memory/2026-03-17.md"],
+    decisions: ["Store CC architecture decisions in OC memory for user queries"],
+    risks: [],
+    confidence: "high",
+    tags: ["memory", "openclaw", "agent-protocol", "mcp"],
+    tokenCost: 2000,
   },
 ];
 

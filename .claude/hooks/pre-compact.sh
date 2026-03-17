@@ -2,6 +2,9 @@
 # PreCompact hook — saves state before context compaction
 # This preserves cross-session continuity (Anthropic long-running agents pattern)
 
+# Ensure jq is on PATH (Windows Git Bash fix)
+export PATH="$HOME/bin:$PATH"
+
 PROGRESS_FILE="$(git rev-parse --show-toplevel 2>/dev/null || echo ".")/.claude/artifacts/progress.json"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -35,5 +38,11 @@ if [ -d "$TASKS_DIR" ]; then
 fi
 
 echo "$UPDATED" > "$PROGRESS_FILE"
+
+# ── AttnRes Bridge: Sync residuals to OpenClaw ──
+BRIDGE_SCRIPT="$ROOT/.claude/hooks/sync-residuals.sh"
+if [ -f "$BRIDGE_SCRIPT" ]; then
+  bash "$BRIDGE_SCRIPT"
+fi
 
 exit 0
