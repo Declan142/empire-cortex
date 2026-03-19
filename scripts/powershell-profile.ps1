@@ -5,7 +5,7 @@
 # On Linux:   ~/.config/powershell/Microsoft.PowerShell_profile.ps1
 
 # cc = Claude Code, always runs from Empire command center
-function cc { claude --dangerously-skip-permissions --cwd "D:\~Claude" $args }
+function cc { Push-Location "D:\~Claude"; claude --dangerously-skip-permissions $args; Pop-Location }
 
 # Power Profile Switchers (run as admin for full effect)
 function dev {
