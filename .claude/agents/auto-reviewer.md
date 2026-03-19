@@ -3,6 +3,7 @@ name: auto-reviewer
 description: Automated PR reviewer — triggers on new PRs, runs Critic-level review.
 tools: Read, Bash, Grep, Glob
 model: sonnet
+memory: project
 maxTurns: 20
 ---
 
