@@ -1,155 +1,109 @@
-# twitter_nuke.py
+# Twitter Nuke
 
-Bulk-delete all tweets from a Twitter/X account using the Twitter API v2.
+Bulk-delete all tweets from a Twitter/X account. Two approaches included:
 
-Supports two modes:
-- **API mode** (default): fetches up to 3,200 recent tweet IDs via the v2 timeline API
-- **Archive mode** (`--archive`): reads all tweet IDs from a downloaded Twitter archive (no 3,200 limit)
+## 1. `twitter_nuke_browser.py` — Browser Automation (Recommended)
 
-Automatically respects the 50-deletes-per-15-minutes rate limit, logs every deletion, and can be safely resumed after interruption.
+Uses Playwright to log into Twitter and delete tweets directly through the UI. No API keys needed — just your username and password.
 
----
+**Why this over the API?**
+- No developer account required
+- No 3,200 tweet limit
+- Deletes replies, quote tweets, everything
+- Free — services like Redact charge $7-15/month for the same thing
 
-## Requirements
-
-```
-pip install tweepy python-dotenv
-```
-
----
-
-## Setup
-
-### 1. Create a Twitter Developer App
-
-1. Go to [developer.x.com](https://developer.x.com) and sign in.
-2. Click **Projects & Apps** in the sidebar, then **+ Add App** (or create a new project first if prompted).
-3. Give the app a name, e.g. `my-tweet-nuke`.
-4. On the app settings page, go to **User authentication settings** and click **Edit**.
-   - Set **App permissions** to **Read and write** (delete requires write).
-   - Set **Type of App** to **Web App, Automated App or Bot**.
-   - Enter any valid callback URL (e.g. `https://localhost/`) and website URL — these are required fields but not actually used here.
-   - Save.
-5. Go to the **Keys and tokens** tab.
-   - Copy your **API Key** and **API Key Secret** (also called Consumer Key / Consumer Secret).
-   - Under **Authentication Tokens**, click **Generate** next to **Access Token and Secret**.
-   - Copy the **Access Token** and **Access Token Secret**.
-
-> Important: the Access Token must be generated **after** you set permissions to Read and Write. If you generated it before, regenerate it.
-
-### 2. Store credentials
-
-Create a `.env` file in the same directory you run the script from:
+### Requirements
 
 ```
-API_KEY=your_api_key_here
-API_SECRET=your_api_key_secret_here
-ACCESS_TOKEN=your_access_token_here
-ACCESS_TOKEN_SECRET=your_access_token_secret_here
+pip install playwright python-dotenv
+playwright install chromium
 ```
 
-Or export them as environment variables:
+### Setup
+
+Create a `.env` file in the `tools/` directory:
+
+```
+TWITTER_USERNAME=your_handle
+TWITTER_PASSWORD=your_password
+```
+
+### Usage
 
 ```bash
-export API_KEY=...
-export API_SECRET=...
-export ACCESS_TOKEN=...
-export ACCESS_TOKEN_SECRET=...
+# Delete all tweets (live)
+python twitter_nuke_browser.py
+
+# Delete tweets for a specific handle
+python twitter_nuke_browser.py --handle myhandle
+
+# Preview without deleting
+python twitter_nuke_browser.py --dry-run
 ```
+
+### How It Works
+
+1. Launches a Chromium browser and logs into Twitter
+2. Navigates to your profile's "Replies" tab (`/with_replies`)
+3. For each tweet: clicks the `...` menu → Delete → Confirm
+4. Logs every deletion to `twitter_nuke_log.jsonl`
+5. Anti-detection: random delays, pauses every 20/100 deletions
+6. Reloads the page if stuck to surface more tweets
+7. Resumable — re-run anytime, skips already-deleted tweets
+
+### Anti-Detection
+
+- Random delays between actions (2-5s)
+- 30-60s pause every 20 deletions
+- 2-3 min pause every 100 deletions
+- Uses a fresh browser profile each run
+- `--disable-blink-features=AutomationControlled` flag
 
 ---
 
-## Usage
+## 2. `twitter_nuke.py` — API Mode
 
-### API mode (default) — up to 3,200 tweets
+Uses Twitter API v2 via Tweepy. Requires a developer account with Read+Write access. Limited to 3,200 most recent tweets unless you provide a Twitter archive.
 
 ```bash
+# API mode
 python twitter_nuke.py
-```
 
-### Archive mode — all tweets, including older than 3,200
+# Archive mode (unlimited)
+python twitter_nuke.py --archive /path/to/data/tweets.js
 
-```bash
-python twitter_nuke.py --archive /path/to/twitter-archive/data/tweets.js
-```
-
-### Dry run — see what would be deleted without deleting anything
-
-```bash
+# Dry run
 python twitter_nuke.py --dry-run
-python twitter_nuke.py --archive tweets.js --dry-run
 ```
 
-### Custom log file path
-
-```bash
-python twitter_nuke.py --log /path/to/my_log.jsonl
+Requires API credentials in `.env`:
+```
+API_KEY=...
+API_SECRET=...
+ACCESS_TOKEN=...
+ACCESS_TOKEN_SECRET=...
 ```
 
-### Resume after interruption
-
-Just run the same command again. The script reads the log file and skips any tweet IDs already recorded there.
+Rate limit: 50 deletes per 15 minutes (free tier). Handled automatically.
 
 ---
 
-## How to download your Twitter archive
+## Log Format
 
-1. Go to [x.com/settings/download_your_data](https://x.com/settings/download_your_data).
-2. Click **Request archive** and confirm with your password.
-3. Twitter will email you a download link (usually within a few minutes to a few hours).
-4. Download and unzip the archive.
-5. The file you need is at: `data/tweets.js` inside the unzipped folder.
-
-Pass the path to that file with `--archive`:
-
-```bash
-python twitter_nuke.py --archive ~/Downloads/twitter-archive/data/tweets.js
-```
-
----
-
-## Log file format
-
-Each line in `twitter_nuke_log.jsonl` is a JSON object:
+Both scripts log to `twitter_nuke_log.jsonl`:
 
 ```json
-{"tweet_id": "1234567890", "timestamp": "2026-03-18T10:00:00+00:00", "dry_run": false}
+{"id": "1234567890", "preview": "tweet text here", "deleted_at": "2026-03-18T10:00:00+00:00"}
 ```
 
-The log doubles as the resume checkpoint. If the script is interrupted, re-run the same command and it will skip already-deleted tweets.
-
----
-
-## Rate limits
-
-Twitter's API v2 allows **50 tweet deletions per 15 minutes** under the free tier. The script handles this automatically: after every 50 deletes it prints a message and sleeps until the window resets.
-
-Example output:
-
-```
-Authenticated as @yourhandle (id: 123456789)
-Resuming: 150 tweet(s) already in log, will skip them.
-Found 1622 tweets via API.
-Deleting 1472 tweets...
-  Deleted 1789012345  (1/1472)
-  Deleted 1789012346  (2/1472)
-  ...
-Deleted 50/1472 tweets... sleeping 15.0 min (rate limit)
-  ...
-Done. 1472/1472 tweets deleted.
-Log written to: /path/to/twitter_nuke_log.jsonl
-```
+The log acts as a resume checkpoint. Safe to interrupt and re-run.
 
 ---
 
 ## Troubleshooting
 
-**"Missing credentials"** — Check that your `.env` file is in the current directory, or that the environment variables are exported in your shell.
+**Browser script: Login fails** — Check your `.env` credentials. If Twitter asks for email/phone verification, the script handles it automatically using your handle.
 
-**"403 Forbidden"** — Your app's permission level is set to Read Only. Go to the developer portal, set it to Read and Write, and regenerate your Access Token and Secret.
+**Browser script: Gets stuck on one tweet** — The script reloads the page after 15 empty scrolls and resets. If a tweet has no Delete option (e.g., someone else's tweet in your feed), it's skipped.
 
-**"401 Unauthorized"** — Your credentials are wrong or expired. Regenerate the Access Token and Secret from the developer portal.
-
-**"404 Not Found" for a tweet** — The tweet was already deleted (possibly by a previous run). The script logs it and moves on.
-
-**Tweets older than 3,200 not found in API mode** — Use `--archive` mode. The v2 timeline endpoint only returns the 3,200 most recent tweets.
+**API script: 403 Forbidden** — App permissions are Read Only. Set to Read+Write in the developer portal and regenerate tokens.
