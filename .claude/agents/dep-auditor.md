@@ -3,6 +3,7 @@ name: dep-auditor
 description: Daily dependency audit — checks for outdated, vulnerable, or deprecated packages.
 tools: Read, Bash, Grep, Glob
 model: haiku
+memory: project
 maxTurns: 10
 ---
 

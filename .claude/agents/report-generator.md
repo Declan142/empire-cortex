@@ -3,6 +3,7 @@ name: report-generator
 description: Weekly summary report — aggregates agent activity, token usage, and project progress.
 tools: Read, Grep, Glob
 model: sonnet
+memory: project
 maxTurns: 15
 ---
 

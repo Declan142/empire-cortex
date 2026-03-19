@@ -3,6 +3,7 @@ name: issue-triager
 description: Daily GitHub issue triage — labels, prioritizes, and assigns new issues.
 tools: Read, Bash, Grep, Glob, WebFetch
 model: haiku
+memory: project
 maxTurns: 10
 ---
 
